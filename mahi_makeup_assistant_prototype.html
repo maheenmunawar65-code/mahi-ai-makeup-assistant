@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MAHI — AI Makeup Assistant</title>
+<style>
+:root{--ink:#20202b;--plum:#6d315b;--rose:#f8eaf1;--cream:#fffaf7;--mint:#dff5eb}
+*{box-sizing:border-box}
+body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,sans-serif;background:var(--cream);color:var(--ink)}
+header{background:linear-gradient(135deg,#321b3a,#78365f);color:white;padding:26px 18px 30px}
+.wrap{max-width:760px;margin:auto}
+.brand{font-size:13px;letter-spacing:2px;font-weight:700;opacity:.85}
+h1{font-size:clamp(28px,7vw,42px);line-height:1.08;margin:10px 0}
+header p{margin:0;line-height:1.5;color:#f8eaf1}
+main{max-width:760px;margin:-14px auto 30px;padding:0 14px}
+.card{background:white;border:1px solid #eee0e8;border-radius:18px;padding:18px;margin-bottom:14px;box-shadow:0 5px 20px #30162b0c}
+h2{font-size:20px;margin:0 0 8px}
+.muted{color:#6d6670;font-size:14px;line-height:1.5}
+label{display:block;font-weight:650;font-size:14px;margin:14px 0 6px}
+select{width:100%;padding:13px;border:1px solid #d8cbd4;border-radius:11px;background:#fff;font-size:16px;color:var(--ink)}
+button{width:100%;border:0;border-radius:12px;background:var(--plum);color:white;font-size:16px;font-weight:750;padding:14px;margin-top:18px;cursor:pointer}
+button:focus,select:focus{outline:3px solid #e6b9d4;outline-offset:2px}
+.result{display:none}
+.swatches{display:flex;gap:9px;margin:14px 0;flex-wrap:wrap}
+.swatch{width:74px;text-align:center;font-size:12px;color:#625660}
+.dot{height:48px;border-radius:13px;margin-bottom:6px;border:1px solid #00000012}
+.tag{display:inline-block;background:var(--mint);color:#185b43;padding:5px 9px;border-radius:99px;font-size:12px;font-weight:750;margin:4px 4px 0 0}
+.notice{background:#fff4d8;border-radius:12px;padding:12px;font-size:13px;line-height:1.5}
+footer{text-align:center;color:#817782;font-size:12px;padding:0 18px 26px}
+</style>
+</head>
+<body>
+<header><div class="wrap">
+<div class="brand">MAHI MAKEUP EVER</div>
+<h1>Your personal makeup colour guide ✨</h1>
+<p>Choose your preferences to get a simple lipstick, eyeshadow and foundation starting point.</p>
+</div></header>
+<main>
+<section class="card">
+<h2>Tell MAHI what you like</h2>
+<p class="muted">This beginner prototype uses your selections to make suggestions. It does not scan your face or diagnose skin tone.</p>
+<label for="tone">Skin depth</label>
+<select id="tone"><option value="fair">Fair / light</option><option value="medium" selected>Medium</option><option value="deep">Deep</option></select>
+<label for="undertone">Undertone (if you know it)</label>
+<select id="undertone"><option value="warm">Warm / golden</option><option value="cool">Cool / pink</option><option value="neutral" selected>Neutral / not sure</option></select>
+<label for="occasion">Occasion</label>
+<select id="occasion"><option value="everyday">Everyday / natural</option><option value="party">Party / glam</option><option value="wedding">Wedding / festive</option></select>
+<label for="finish">Preferred look</label>
+<select id="finish"><option value="soft">Soft and subtle</option><option value="bold">Bold and colourful</option><option value="shimmer">Shimmer / glow</option></select>
+<button id="recommend">Get my colour suggestions</button>
+</section>
+<section class="card result" id="result" aria-live="polite">
+<h2>Your MAHI suggestions 💄</h2>
+<div id="tags"></div>
+<div id="swatches" class="swatches"></div>
+<p id="explanation" class="muted"></p>
+<div class="notice"><strong>Prototype note:</strong> These are style suggestions, not a professional shade match. No photo is uploaded or analysed.</div>
+</section>
+<section class="card">
+<h2>Next: PayPal Sandbox checkout</h2>
+<p class="muted">The payment feature is not connected yet. We’ll add a real PayPal Sandbox test checkout after this page is uploaded and working. Never enter real payment details into a demo.</p>
+</section>
+</main>
+<footer>MAHI — beginner prototype • Built for learning and testing</footer>
+<script>
+const palettes = {
+  fair: { warm: {lip:['Peach nude','#D98778'], eye:['Warm champagne','#D6B17A'], foundation:'Light warm shade range'}, cool:{lip:['Rose pink','#C96D88'],eye:['Mauve taupe','#A98A9D'],foundation:'Light cool shade range'},neutral:{lip:['Soft rose nude','#C9878D'],eye:['Soft taupe','#B6A49A'],foundation:'Light neutral shade range'}},
+  medium:{warm:{lip:['Terracotta rose','#B85E49'],eye:['Bronze gold','#B68142'],foundation:'Medium warm shade range'},cool:{lip:['Berry rose','#A94769'],eye:['Plum taupe','#8E718D'],foundation:'Medium cool shade range'},neutral:{lip:['Dusty rose','#B96F78'],eye:['Rose brown','#9B7772'],foundation:'Medium neutral shade range'}},
+  deep:{warm:{lip:['Brick berry','#923E45'],eye:['Copper bronze','#A55D32'],foundation:'Deep warm shade range'},cool:{lip:['Deep berry','#78304F'],eye:['Plum shimmer','#75506F'],foundation:'Deep cool shade range'},neutral:{lip:['Rich rosewood','#874956'],eye:['Cocoa bronze','#82543E'],foundation:'Deep neutral shade range'}}
+};
+document.getElementById('recommend').addEventListener('click',()=>{
+ const tone=document.getElementById('tone').value, under=document.getElementById('undertone').value;
+ const occasion=document.getElementById('occasion').value, finish=document.getElementById('finish').value;
+ const p=palettes[tone][under];
+ let lip=p.lip, eye=p.eye;
+ if(occasion==='party'){lip=['Bold '+(under==='cool'?'berry':'rose'),under==='cool'?'#8C214B':'#A83F38'];eye=finish==='shimmer'?['Shimmer bronze','#B77B45']:['Smoky plum','#61445F'];}
+ if(occasion==='wedding'){lip=['Festive '+(under==='warm'?'terracotta':'rose'),under==='warm'?'#A94F3D':'#A44F70'];eye=['Soft gold glow','#C6A15A'];}
+ if(finish==='bold'&&occasion==='everyday'){lip=['Statement rose',under==='cool'?'#A52F59':'#B44B3D'];}
+ if(finish==='shimmer'&&occasion==='everyday'){eye=['Champagne shimmer','#D9B87A'];}
+ const tags=document.getElementById('tags'); tags.innerHTML='';
+ [`Occasion: ${occasion}`,`Look: ${finish}`,`Undertone: ${under}`].forEach(t=>{const s=document.createElement('span');s.className='tag';s.textContent=t;tags.appendChild(s)});
+ const sw=document.getElementById('swatches'); sw.innerHTML='';
+ [[lip[0],lip[1]],[eye[0],eye[1]]].forEach(([name,color])=>{const box=document.createElement('div');box.className='swatch';box.innerHTML='<div class="dot" style="background:'+color+'"></div>';const text=document.createElement('div');text.textContent=name;box.appendChild(text);sw.appendChild(box)});
+ const f=document.createElement('div');f.className='swatch';f.innerHTML='<div class="dot" style="background:linear-gradient(135deg,#eed4bd,#c48d67,#75452f)"></div>';const ft=document.createElement('div');ft.textContent=p.foundation;f.appendChild(ft);sw.appendChild(f);
+ document.getElementById('explanation').textContent='Suggested starting point: '+lip[0]+' lipstick, '+eye[0]+' eyeshadow, and '+p.foundation+'. Try samples in daylight and check the product brand’s shade chart before buying.';
+ document.getElementById('result').style.display='block';
+ document.getElementById('result').scrollIntoView({behavior:'smooth',block:'start'});
+});
+</script>
+</body>
+</html>
